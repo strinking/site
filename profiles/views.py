@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.http import HttpResponseNotFound
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
@@ -64,14 +65,11 @@ class RestrictProcessingUpdateView(UserPassesTestMixin, generic.UpdateView):
     model = RestrictProcessing
     fields = ('restrict_processing',)
 
+    raise_exception = True
+    permission_denied_message = "You are not allowed to update a profile that isn't yours."
+
     def test_func(self):
         return self.request.user == self.get_object().user
-
-    def get_object(self, queryset=None):
-        restrict_processing_object, _ = RestrictProcessing.objects.get_or_create(
-            user=self.request.user
-        )
-        return restrict_processing_object
 
     def get_success_url(self):
         return reverse('profiles:detail', kwargs={'pk': self.request.user.id})
