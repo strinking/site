@@ -27,10 +27,17 @@ class ProfileDetailView(UserPassesTestMixin, generic.DetailView):
                 has it set to `False` (which is the default).
             False:
                 If the user set `restrict_processing` to
-                `True` through the profile change form.
+                `True` through the profile change form,
+                or the user visiting is the owner of the
+                profile that is being visited.
         """
 
         profile_user = self.get_object()
+
+        # The user should always be able to view their own profile.
+        if self.request.user == profile_user:
+            return True
+
         try:
             restrict_processing_row = RestrictProcessing.objects.get(user=profile_user)
         except RestrictProcessing.DoesNotExist:
