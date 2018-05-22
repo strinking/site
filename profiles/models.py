@@ -5,7 +5,8 @@ from django.db import models
 class RestrictProcessing(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        primary_key=True
     )
     restrict_processing = models.BooleanField(
         default=False,
