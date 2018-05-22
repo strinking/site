@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.http import HttpResponseNotFound
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
