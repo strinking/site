@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views import generic
 
 from stats.models import RoleMembership
@@ -51,6 +51,23 @@ class ProfileDetailView(UserPassesTestMixin, generic.DetailView):
             role__name="@everyone"
         )
         return context
+
+
+class RestrictProcessingUpdateView(UserPassesTestMixin, generic.UpdateView):
+    model = RestrictProcessing
+    fields = ('restrict_processing',)
+
+    def test_func(self):
+        return self.request.user == self.get_object().user
+
+    def get_object(self, queryset=None):
+        restrict_processing_object, _ = RestrictProcessing.objects.get_or_create(
+            user=self.request.user
+        )
+        return restrict_processing_object
+
+    def get_success_url(self):
+        return reverse('profiles:detail', kwargs={'pk': self.request.user.id})
 
 
 class ProfileDeleteView(UserPassesTestMixin, generic.DeleteView):
