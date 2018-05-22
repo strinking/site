@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from django.test import TestCase
 
+from profiles.models import RestrictProcessing
+
 
 class AnonymousUserProfilesTests(TestCase):
     """
@@ -92,6 +94,23 @@ class GuestUserProfilesTests(TestCase):
     def test_detail_context(self):
         resp = self.client.get(reverse("profiles:detail", kwargs={"pk": self.user.id}))
         self.assertEqual(resp.context["user"], self.user)
+
+
+class RestrictProcessingTests(TestCase):
+    """
+    Scenario:
+        - anonymous user accesses the site
+        - visits the profile of a user with `restrict_processing` set
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user('testuser', password='testpassword')
+        RestrictProcessing.objects.create(user=cls.user, restrict_processing=True)
+
+    def test_detail_returns_403(self):
+        resp = self.client.get(reverse("profiles:detail", kwargs={"pk": self.user.id}))
+        self.assertEqual(resp.status_code, 403)
 
 
 class UserProfileInteractionsTests(TestCase):
